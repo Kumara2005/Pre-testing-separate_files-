@@ -1,0 +1,24 @@
+# Automated Paper Correction System - Requirements
+# Gemini 2.5 Flash Powered Version with Batch Processing
+
+# Core dependencies
+streamlit>=1.28.0
+python-dotenv>=1.0.0
+
+# PDF and image processing
+pdf2image>=1.16.3
+Pillow>=10.0.0
+
+# Google Gemini API for intelligent extraction and comparison
+google-generativeai>=0.4.0
+
+# Machine Learning for semantic comparison (fallback option)
+sentence-transformers>=2.2.2
+scikit-learn>=1.3.0
+numpy>=1.24.0
+
+# Async support
+nest-asyncio>=1.5.8
+
+# Additional utilities
+typing-extensions>=4.8.0
