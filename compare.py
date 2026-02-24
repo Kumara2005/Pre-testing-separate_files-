@@ -1,6 +1,7 @@
 """
 Semantic comparison module for comparing student answers with teacher's key.
 Supports both Sentence-Transformers (local) and Gemini API (cloud-based).
+Updated to support few-shot learning using an optional teacher-corrected reference.
 """
 from typing import Dict, List, Any, Optional
 from sentence_transformers import SentenceTransformer
@@ -14,15 +15,11 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 class SemanticComparator:
-    """Handles semantic comparison between texts using multiple methods."""
+    """Handles semantic comparison between texts using multiple methods and few-shot calibration."""
     
     def __init__(self, method: str = "gemini", model_name: str = "all-MiniLM-L6-v2"):
         """
         Initialize the semantic comparator.
-        
-        Args:
-            method: Comparison method ("sentence_transformers" or "gemini")
-            model_name: Model name for sentence transformers
         """
         self.method = method
         self.model = None
@@ -38,56 +35,48 @@ class SemanticComparator:
                     self.gemini_model = genai.GenerativeModel('gemini-2.5-flash')
             except Exception as e:
                 print(f"Warning: Could not initialize Gemini API: {e}")
-                # Fallback to sentence transformers
                 self.method = "sentence_transformers"
                 self.model = SentenceTransformer(model_name)
     
     def compare_with_sentence_transformers(self, text1: str, text2: str) -> float:
-        """
-        Compare two texts using Sentence Transformers.
-        
-        Args:
-            text1: First text (teacher's answer)
-            text2: Second text (student's answer)
-            
-        Returns:
-            Similarity score between 0 and 1
-        """
-        # Handle None or empty texts
+        """Compare two texts using Sentence Transformers (Baseline)."""
         if text1 is None or text2 is None or not str(text1).strip() or not str(text2).strip():
             return 0.0
         
-        # Lazy initialization of sentence transformer model (for fallback scenarios)
         if self.model is None:
             self.model = SentenceTransformer("all-MiniLM-L6-v2")
         
-        # Generate embeddings
         embeddings = self.model.encode([text1, text2])
-        
-        # Calculate cosine similarity
         similarity = cosine_similarity([embeddings[0]], [embeddings[1]])[0][0]
-        
-        # Convert to percentage (0-1 range)
         return float(max(0.0, min(1.0, similarity)))
     
-    def compare_with_gemini(self, text1: str, text2: str, retry_count: int = 3) -> Dict[str, Any]:
+    def compare_with_gemini(self, text1: str, text2: str, ref_text: Optional[str] = None, retry_count: int = 3) -> Dict[str, Any]:
         """
-        Compare two texts using Gemini API for detailed semantic analysis.
+        Compare student answer with teacher's key using Few-Shot Learning.
         
         Args:
-            text1: First text (teacher's answer)
-            text2: Second text (student's answer)
-            retry_count: Number of retries for API failures
-            
-        Returns:
-            Dictionary with similarity score and analysis
+            text1: Teacher's Expected Answer
+            text2: Student's Answer
+            ref_text: Optional human-corrected reference (Few-Shot data)
         """
-        # Handle None or empty texts
         if text1 is None or text2 is None or not str(text1).strip() or not str(text2).strip():
             return {"similarity": 0.0, "analysis": "Empty content"}
         
+        # Build Calibration Context for Few-Shot Learning
+        calibration_context = ""
+        if ref_text and str(ref_text).strip():
+            calibration_context = f"""
+            CALIBRATION REFERENCE (Few-Shot Example):
+            Use the following human-corrected sample to understand the grading standards, 
+            leniency, and feedback style preferred by the teacher:
+            ---
+            {ref_text[:1500]}
+            ---
+            """
+
         prompt = f"""
-        Compare the following two answers based on CONCEPTUAL ACCURACY, not exact word matching.
+        Compare the student's answer against the teacher's expected answer based on CONCEPTUAL ACCURACY.
+        {calibration_context}
         
         Teacher's Expected Answer:
         {text1[:2000]}
@@ -95,17 +84,14 @@ class SemanticComparator:
         Student's Answer:
         {text2[:2000]}
         
-        Evaluate based on:
-        1. Core concepts and understanding demonstrated
-        2. Correctness of key ideas and explanations
-        3. Completeness of the answer
-        4. Logical reasoning and structure
+        Instructions:
+        1. Evaluate core concepts, correctness, and logical structure.
+        2. If a CALIBRATION REFERENCE is provided, align your scoring strictness with it.
+        3. Different wording is acceptable if concepts are correct.
         
-        Note: Different wording is acceptable if the concepts are correct.
-        
-        Provide:
-        SCORE: [0-100 based on conceptual accuracy]
-        ANALYSIS: [Brief explanation of what was correct, missing, or incorrect]
+        Provide the output in exactly this format:
+        SCORE: [0-100]
+        ANALYSIS: [Brief explanation of correctness and alignment with reference if used]
         """
         
         for attempt in range(retry_count):
@@ -113,14 +99,13 @@ class SemanticComparator:
                 response = self.gemini_model.generate_content(prompt)
                 response_text = response.text
                 
-                # Parse the response
                 score = 0.0
                 analysis = ""
                 
                 for line in response_text.split('\n'):
                     if line.startswith('SCORE:'):
                         try:
-                            score = float(line.split(':')[1].strip()) / 100.0
+                            score = float(line.split(':')[1].strip().replace('%', '')) / 100.0
                         except:
                             score = 0.5
                     elif line.startswith('ANALYSIS:'):
@@ -133,125 +118,64 @@ class SemanticComparator:
             
             except Exception as e:
                 error_msg = str(e).lower()
-                
-                # Handle rate limiting with exponential backoff
                 if "429" in error_msg or "rate" in error_msg or "quota" in error_msg:
                     wait_time = (2 ** attempt) * 2
-                    print(f"Rate limit during comparison, waiting {wait_time}s...")
                     time.sleep(wait_time)
-                    
                     if attempt == retry_count - 1:
-                        # Final fallback to sentence transformers
-                        print(f"Error with Gemini API after retries: {e}")
                         similarity = self.compare_with_sentence_transformers(text1, text2)
-                        return {
-                            "similarity": similarity,
-                            "analysis": f"Gemini API rate limited, used fallback. Score: {similarity:.2%}"
-                        }
+                        return {"similarity": similarity, "analysis": "Fallback used due to rate limit."}
                 else:
                     if attempt == retry_count - 1:
-                        print(f"Error with Gemini API: {e}")
                         similarity = self.compare_with_sentence_transformers(text1, text2)
-                        return {
-                            "similarity": similarity,
-                            "analysis": f"Gemini API error, used fallback. Score: {similarity:.2%}"
-                        }
+                        return {"similarity": similarity, "analysis": f"Error: {str(e)}"}
                     time.sleep(1)
     
-    def compare_texts(self, teacher_text: str, student_text: str) -> Dict[str, Any]:
-        """
-        Compare two texts using the configured method.
-        
-        Args:
-            teacher_text: Teacher's answer
-            student_text: Student's answer
-            
-        Returns:
-            Dictionary with similarity score and optional analysis
-        """
-        # Ensure texts are strings, not None
-        teacher_text = str(teacher_text) if teacher_text is not None else ""
-        student_text = str(student_text) if student_text is not None else ""
-        
+    def compare_texts(self, teacher_text: str, student_text: str, reference_text: Optional[str] = None) -> Dict[str, Any]:
+        """Entry point for comparison logic."""
         if self.method == "gemini":
-            return self.compare_with_gemini(teacher_text, student_text)
+            return self.compare_with_gemini(teacher_text, student_text, reference_text)
         else:
             similarity = self.compare_with_sentence_transformers(teacher_text, student_text)
-            return {
-                "similarity": similarity,
-                "analysis": f"Semantic similarity: {similarity:.2%}"
-            }
+            return {"similarity": similarity, "analysis": f"Semantic match: {similarity:.2%}"}
     
-    async def compare_page_async(self, teacher_page: Dict, student_page: Dict) -> Dict[str, Any]:
-        """
-        Asynchronously compare a single page.
-        
-        Args:
-            teacher_page: Dictionary with teacher's page content
-            student_page: Dictionary with student's page content
-            
-        Returns:
-            Comparison result
-        """
+    async def compare_page_async(self, teacher_page: Dict, student_page: Dict, reference_page: Optional[Dict] = None) -> Dict[str, Any]:
+        """Asynchronously compare a single page with optional few-shot calibration."""
         loop = asyncio.get_event_loop()
-        # Ensure content is never None
-        teacher_content = teacher_page.get("content") or ""
-        student_content = student_page.get("content") or ""
+        t_content = teacher_page.get("content") or ""
+        s_content = student_page.get("content") or ""
+        r_content = reference_page.get("content") if reference_page else None
         
         result = await loop.run_in_executor(
             self.executor,
             self.compare_texts,
-            teacher_content,
-            student_content
+            t_content,
+            s_content,
+            r_content
         )
         
         result["teacher_page_no"] = teacher_page.get("page_no", 0)
         result["student_page_no"] = student_page.get("page_no", 0)
-        
         return result
     
-    async def compare_documents(self, teacher_data: Dict, student_data: Dict) -> List[Dict[str, Any]]:
-        """
-        Compare all pages from teacher and student documents.
-        
-        Args:
-            teacher_data: Extracted teacher document data
-            student_data: Extracted student document data
-            
-        Returns:
-            List of comparison results for each page
-        """
+    async def compare_documents(self, teacher_data: Dict, student_data: Dict, reference_data: Optional[Dict] = None) -> List[Dict[str, Any]]:
+        """Compare documents page-by-page, incorporating few-shot reference if available."""
         teacher_pages = teacher_data.get("pages", [])
         student_pages = student_data.get("pages", [])
+        ref_pages = reference_data.get("pages", []) if reference_data else []
         
-        # Match pages (assuming 1-to-1 correspondence)
         min_pages = min(len(teacher_pages), len(student_pages))
-        
         tasks = []
         for i in range(min_pages):
-            tasks.append(self.compare_page_async(teacher_pages[i], student_pages[i]))
+            ref_page = ref_pages[i] if i < len(ref_pages) else None
+            tasks.append(self.compare_page_async(teacher_pages[i], student_pages[i], ref_page))
         
-        # Process all pages concurrently
-        results = await asyncio.gather(*tasks)
-        
-        return results
+        return await asyncio.gather(*tasks)
     
     def __del__(self):
-        """Clean up the executor on deletion."""
         self.executor.shutdown(wait=False)
 
 
-def compare_documents_sync(teacher_data: Dict, student_data: Dict, method: str = "gemini") -> List[Dict[str, Any]]:
-    """
-    Synchronous wrapper for comparing documents.
-    
-    Args:
-        teacher_data: Extracted teacher document data
-        student_data: Extracted student document data
-        method: Comparison method to use (default: "gemini")
-        
-    Returns:
-        List of comparison results
-    """
+def compare_documents_sync(teacher_data: Dict, student_data: Dict, reference_data: Optional[Dict] = None, method: str = "gemini") -> List[Dict[str, Any]]:
+    """Synchronous wrapper for document comparison."""
     comparator = SemanticComparator(method=method)
-    return asyncio.run(comparator.compare_documents(teacher_data, student_data))
+    return asyncio.run(comparator.compare_documents(teacher_data, student_data, reference_data))

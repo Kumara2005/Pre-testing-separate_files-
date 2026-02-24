@@ -1,6 +1,7 @@
 """
 Text extraction module with sequential safe-mode processing for free tier.
 Uses Gemini 2.5 Flash with one-at-a-time processing to avoid rate limits.
+Updated to support optional reference paper extraction for few-shot learning.
 """
 import asyncio
 import os
@@ -17,7 +18,7 @@ rate_limit_lock = asyncio.Semaphore(1)
 
 
 class DocumentExtractor:
-    """Handles text extraction from PDF using Gemini 2.5 Flash with sequential processing."""
+    """Handles text extraction from PDF or Images using Gemini 2.5 Flash with sequential processing."""
     
     def __init__(self):
         """Initialize the document extractor with Gemini."""
@@ -32,13 +33,6 @@ class DocumentExtractor:
     async def transcribe_page(self, image: Image.Image, page_no: int) -> Dict[str, Any]:
         """
         Transcribe a single page with rate limiting.
-        
-        Args:
-            image: PIL Image object
-            page_no: Page number
-            
-        Returns:
-            Dictionary with page number and content
         """
         async with rate_limit_lock:
             try:
@@ -56,25 +50,37 @@ class DocumentExtractor:
     
     async def extract_from_file(self, file_path: str, source: str) -> Dict[str, Any]:
         """
-        Extract text from a PDF file sequentially (one page at a time).
+        Extract text from a PDF or image file sequentially (one page at a time).
         
         Args:
-            file_path: Path to the PDF file
-            source: Source identifier ("teacher" or "student")
-            
-        Returns:
-            Dictionary with source and page contents
+            file_path: Path to the PDF or image file
+            source: Source identifier ("teacher", "student", or "reference")
         """
         try:
             print(f"📑 Extracting {source} from: {Path(file_path).name}")
             
-            # Convert PDF to Images
-            images = convert_from_path(file_path, dpi=200)
+            # Detect file type by extension
+            file_ext = Path(file_path).suffix.lower()
+            images = []
+            
+            # Handle different file types
+            if file_ext in ['.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff']:
+                # It's an image file - load directly
+                print(f"   > Detected image file format: {file_ext}")
+                img = Image.open(file_path)
+                images = [img]
+            elif file_ext == '.pdf':
+                # It's a PDF - convert to images
+                print(f"   > Detected PDF file, converting to images...")
+                images = convert_from_path(file_path, dpi=200)
+            else:
+                raise ValueError(f"Unsupported format: {file_ext}. Use PDF or Images.")
+            
             pages_content = []
             
             # We process pages one-by-one (Sequential) to prevent 429 errors
             for i, img in enumerate(images):
-                print(f"  > Processing Page {i+1}...")
+                print(f"   > Processing {source} Page {i+1}...")
                 result = await self.transcribe_page(img, i + 1)
                 pages_content.append(result)
             
@@ -97,41 +103,30 @@ class DocumentExtractor:
             }
 
 
-async def extract_documents(teacher_path: str, student_path: str) -> Dict[str, Any]:
+async def extract_documents(teacher_path: str, student_path: str, reference_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Extract text from both teacher and student documents SEQUENTIALLY.
-    
-    Args:
-        teacher_path: Path to teacher's answer key
-        student_path: Path to student's script
-        
-    Returns:
-        Dictionary containing extracted data from both documents
+    Extract text from teacher, student, and optional reference documents SEQUENTIALLY.
     """
     extractor = DocumentExtractor()
     
-    # CRITICAL: We do NOT use asyncio.gather here. 
-    # We do them one after the other to stay under the free limit.
+    # Process sequentially to avoid rate limits
     teacher_data = await extractor.extract_from_file(teacher_path, "teacher")
     student_data = await extractor.extract_from_file(student_path, "student")
+    
+    reference_data = None
+    if reference_path:
+        reference_data = await extractor.extract_from_file(reference_path, "reference")
     
     return {
         "teacher_key": teacher_data,
         "student_script": student_data,
+        "reference_paper": reference_data,
         "extraction_status": "completed"
     }
 
 
-def extract_documents_sync(teacher_file_path: str, student_file_path: str) -> Dict[str, Any]:
+def extract_documents_sync(teacher_file_path: str, student_file_path: str, reference_file_path: Optional[str] = None) -> Dict[str, Any]:
     """
     Synchronous wrapper for extracting documents.
-    
-    Args:
-        teacher_file_path: Path to teacher's answer key
-        student_file_path: Path to student's script
-        
-    Returns:
-        Dictionary containing extracted data from both documents
     """
-    return asyncio.run(extract_documents(teacher_file_path, student_file_path))
-
+    return asyncio.run(extract_documents(teacher_file_path, student_file_path, reference_file_path))
