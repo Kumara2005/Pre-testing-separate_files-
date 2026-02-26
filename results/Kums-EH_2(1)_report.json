@@ -1,0 +1,49 @@
+{
+  "metadata": {
+    "evaluation_date": "2026-02-26T11:25:03.926510",
+    "teacher_file": "EH-Answerkey-1-2 (1).pdf",
+    "student_file": "Kums-EH_2(1).pdf",
+    "student_info": {}
+  },
+  "evaluation": {
+    "total_score": 45.0,
+    "max_score": 100.0,
+    "percentage": 45.0,
+    "average_similarity": 37.5,
+    "status": "pass",
+    "grade": "D+",
+    "page_scores": [
+      {
+        "page_no": 1,
+        "similarity_score": 50.0,
+        "marks_awarded": 32.5,
+        "max_marks": 50.0,
+        "analysis": "SCORE_EARNED: 10\nSCORE_TOTAL: 20\nANALYSIS:\nThe student provided answers for 7 out of 10 questions in Part A, with questions 6 and 7 being incomplete or garbled.\n\n*   **Question 1 (Penetration Tester):** The student correctly identified the role of detecting vulnerabilities and building security mechanisms (interpreted as providing recommendations to mitigate risks). While the phrase \"exploit the data in unauthorised manner\" is conceptually incorrect for an ethical penetration tester, the core positive aspects of the role were present. (2/2 Marks)\n*   **Question 2 (Ethical Hacking Objectives):** The student correctly identified \"identify the vulnerability,\" \"prevent from cyber attacks,\" and \"protect sensitive data\" as objectives of ethical hacking. (2/2 Marks)\n*   **Question 3 (TCP/IP Importance):** The student demonstrated an understanding that TCP/IP is used to check connections and applies a layered approach (listing the layers) for troubleshooting, which aligns with the concept of isolating issues to specific layers. (2/2 Marks)\n*   **Question 4 (Network vs. Malware Attacks):** For network attacks, the student correctly identified their association with \"network protocol.\" For malware attacks, the student accurately described common delivery mechanisms (user interaction, downloading, phishing), which conceptually differentiates them from network attacks, even without explicitly defining malware as \"malicious software.\" (2/2 Marks)\n*   **Question 5 (Footprinting):** The student correctly described footprinting as an important information-gathering phase in ethical hacking, aimed at enumerating information to identify vulnerabilities. (2/2 Marks)\n*   **Question 6 (Footprinting Tools):** The answer was incomplete and contained garbled text, making it impossible to identify any tools. (0/2 Marks)\n*   **Question 7 (Port vs. Network Scanning):** The answer was incomplete and contained garbled text, making it impossible to assess. (0/2 Marks)"
+      },
+      {
+        "page_no": 2,
+        "similarity_score": 25.0,
+        "marks_awarded": 12.5,
+        "max_marks": 50.0,
+        "analysis": "SCORE_EARNED: 4\nSCORE_TOTAL: 16\nANALYSIS:\n**Question 8: Illustrate why scanning techniques are important in vulnerability detection.**\n*   **Concepts Found:** The student correctly identifies the core importance of scanning techniques as being used to \"gather Information about the loopholes or vulnerabilities of the target\" and as an \"important method to detect it.\" This matches the fundamental concept of discovering weaknesses.\n*   **Concepts Missing:** The student's answer lacks the specific details mentioned in the reference key, such as scanning automating discovery, proactively finding \"unpatched software, misconfigured services, or weak entry points,\" and enabling administrators to \"apply security patches before an exploit occurs.\"\n*   **Score for Q8:** 3/5 marks. (Captures the main purpose, but lacks depth and specific examples.)\n\n**Question 9: Describe the role of NetBIOS enumeration in information gathering.**\n*   **Concepts Found:** The student correctly identifies that NetBIOS is used to \"enumerate the information from the target.\" They also provide the full form \"Network basic input/output service,\" though this was not explicitly asked.\n*   **Concepts Missing:** The student's answer largely misses the crucial specific details of *what* information NetBIOS enumeration gathers (e.g., list of computers in a domain, shared resources like files/printers, device names). It also misses that it helps in \"mapping the internal network structure of Windows-based systems.\" The second point in the student's answer (\"identify the vulnerability, assess the risk and managing the security mechanisms\") is too general and does not describe the specific information gathering role of NetBIOS enumeration.\n*   **Score for Q9:** 1/5 marks. (Only the very general function of enumerating information is captured.)\n\n**Question 10: Identify any two vulnerability assessment techniques used for desktop and server OS.**\n*   **Concepts Found:** None.\n*   **Concepts Missing:** The student did not provide an answer for this question.\n*   **Score for Q10:** 0/6 marks."
+      }
+    ],
+    "total_pages_evaluated": 2
+  },
+  "detailed_page_analysis": [
+    {
+      "page_no": 1,
+      "similarity_score": 50.0,
+      "marks_awarded": 32.5,
+      "max_marks": 50.0,
+      "analysis": "SCORE_EARNED: 10\nSCORE_TOTAL: 20\nANALYSIS:\nThe student provided answers for 7 out of 10 questions in Part A, with questions 6 and 7 being incomplete or garbled.\n\n*   **Question 1 (Penetration Tester):** The student correctly identified the role of detecting vulnerabilities and building security mechanisms (interpreted as providing recommendations to mitigate risks). While the phrase \"exploit the data in unauthorised manner\" is conceptually incorrect for an ethical penetration tester, the core positive aspects of the role were present. (2/2 Marks)\n*   **Question 2 (Ethical Hacking Objectives):** The student correctly identified \"identify the vulnerability,\" \"prevent from cyber attacks,\" and \"protect sensitive data\" as objectives of ethical hacking. (2/2 Marks)\n*   **Question 3 (TCP/IP Importance):** The student demonstrated an understanding that TCP/IP is used to check connections and applies a layered approach (listing the layers) for troubleshooting, which aligns with the concept of isolating issues to specific layers. (2/2 Marks)\n*   **Question 4 (Network vs. Malware Attacks):** For network attacks, the student correctly identified their association with \"network protocol.\" For malware attacks, the student accurately described common delivery mechanisms (user interaction, downloading, phishing), which conceptually differentiates them from network attacks, even without explicitly defining malware as \"malicious software.\" (2/2 Marks)\n*   **Question 5 (Footprinting):** The student correctly described footprinting as an important information-gathering phase in ethical hacking, aimed at enumerating information to identify vulnerabilities. (2/2 Marks)\n*   **Question 6 (Footprinting Tools):** The answer was incomplete and contained garbled text, making it impossible to identify any tools. (0/2 Marks)\n*   **Question 7 (Port vs. Network Scanning):** The answer was incomplete and contained garbled text, making it impossible to assess. (0/2 Marks)"
+    },
+    {
+      "page_no": 2,
+      "similarity_score": 25.0,
+      "marks_awarded": 12.5,
+      "max_marks": 50.0,
+      "analysis": "SCORE_EARNED: 4\nSCORE_TOTAL: 16\nANALYSIS:\n**Question 8: Illustrate why scanning techniques are important in vulnerability detection.**\n*   **Concepts Found:** The student correctly identifies the core importance of scanning techniques as being used to \"gather Information about the loopholes or vulnerabilities of the target\" and as an \"important method to detect it.\" This matches the fundamental concept of discovering weaknesses.\n*   **Concepts Missing:** The student's answer lacks the specific details mentioned in the reference key, such as scanning automating discovery, proactively finding \"unpatched software, misconfigured services, or weak entry points,\" and enabling administrators to \"apply security patches before an exploit occurs.\"\n*   **Score for Q8:** 3/5 marks. (Captures the main purpose, but lacks depth and specific examples.)\n\n**Question 9: Describe the role of NetBIOS enumeration in information gathering.**\n*   **Concepts Found:** The student correctly identifies that NetBIOS is used to \"enumerate the information from the target.\" They also provide the full form \"Network basic input/output service,\" though this was not explicitly asked.\n*   **Concepts Missing:** The student's answer largely misses the crucial specific details of *what* information NetBIOS enumeration gathers (e.g., list of computers in a domain, shared resources like files/printers, device names). It also misses that it helps in \"mapping the internal network structure of Windows-based systems.\" The second point in the student's answer (\"identify the vulnerability, assess the risk and managing the security mechanisms\") is too general and does not describe the specific information gathering role of NetBIOS enumeration.\n*   **Score for Q9:** 1/5 marks. (Only the very general function of enumerating information is captured.)\n\n**Question 10: Identify any two vulnerability assessment techniques used for desktop and server OS.**\n*   **Concepts Found:** None.\n*   **Concepts Missing:** The student did not provide an answer for this question.\n*   **Score for Q10:** 0/6 marks."
+    }
+  ]
+}

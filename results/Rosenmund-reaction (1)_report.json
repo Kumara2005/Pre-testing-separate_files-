@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "evaluation_date": "2026-02-26T08:28:35.999838",
+    "teacher_file": "Rosenmund-reaction.pdf",
+    "student_file": "Rosenmund-reaction (1).pdf",
+    "student_info": {}
+  },
+  "evaluation": {
+    "total_score": 0.0,
+    "max_score": 100.0,
+    "percentage": 0.0,
+    "average_similarity": 0.0,
+    "status": "fail",
+    "grade": "F",
+    "page_scores": [
+      {
+        "page_no": 1,
+        "similarity_score": 0.0,
+        "marks_awarded": 0.0,
+        "max_marks": 100.0,
+        "analysis": "Please provide the following information so I can perform the audit:\n\n1.  **The Questions:** Both Part-A and Part-B questions.\n2.  **The Reference Key:** The detailed answer key for all questions, including mark distribution for sub-parts in Part-B.\n3.  **The Student's Handwritten Content:** The student's answers to be evaluated."
+      }
+    ],
+    "total_pages_evaluated": 1
+  },
+  "detailed_page_analysis": [
+    {
+      "page_no": 1,
+      "similarity_score": 0.0,
+      "marks_awarded": 0.0,
+      "max_marks": 100.0,
+      "analysis": "Please provide the following information so I can perform the audit:\n\n1.  **The Questions:** Both Part-A and Part-B questions.\n2.  **The Reference Key:** The detailed answer key for all questions, including mark distribution for sub-parts in Part-B.\n3.  **The Student's Handwritten Content:** The student's answers to be evaluated."
+    }
+  ]
+}

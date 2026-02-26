@@ -1,0 +1,99 @@
+
+============================================================
+DETAILED FEEDBACK REPORT
+============================================================
+
+**Page 1 Feedback:**
+
+⚠️ **Satisfactory.** Your answer addresses the question but lacks depth or misses some important elements. You earned 7.5/10.0 marks.
+
+**Strengths:** Some relevant points identified.
+**Areas for improvement:** Expand on core concepts, ensure accuracy, and cover all aspects of the question.
+
+------------------------------------------------------------
+
+**Page 2 Feedback:**
+
+❌ **Significant gaps.** Your answer shows minimal alignment with the expected response. You earned 2.05/10.0 marks.
+
+**Recommendations:** Review the course material thoroughly, seek help to understand core concepts, and ensure you understand what the question is asking.
+
+------------------------------------------------------------
+
+**Page 3 Feedback:**
+
+⚠️ **Needs improvement.** Your answer shows partial understanding but significant gaps remain. You earned 6.5/10.0 marks.
+
+**Areas for improvement:** Review core concepts, provide more detailed explanations, and ensure your answer directly addresses the question.
+
+------------------------------------------------------------
+
+**Page 4 Feedback:**
+
+❌ **Significant gaps.** Your answer shows minimal alignment with the expected response. You earned 2.78/10.0 marks.
+
+**Recommendations:** Review the course material thoroughly, seek help to understand core concepts, and ensure you understand what the question is asking.
+
+------------------------------------------------------------
+
+**Page 5 Feedback:**
+
+❌ **Significant gaps.** Your answer shows minimal alignment with the expected response. You earned 3.5/10.0 marks.
+
+**Recommendations:** Review the course material thoroughly, seek help to understand core concepts, and ensure you understand what the question is asking.
+
+------------------------------------------------------------
+
+**Page 6 Feedback:**
+
+⚠️ **Needs improvement.** Your answer shows partial understanding but significant gaps remain. You earned 6.5/10.0 marks.
+
+**Areas for improvement:** Review core concepts, provide more detailed explanations, and ensure your answer directly addresses the question.
+
+------------------------------------------------------------
+
+**Page 7 Feedback:**
+
+❌ **Significant gaps.** Your answer shows minimal alignment with the expected response. You earned 3.5/10.0 marks.
+
+**Recommendations:** Review the course material thoroughly, seek help to understand core concepts, and ensure you understand what the question is asking.
+
+------------------------------------------------------------
+
+**Page 8 Feedback:**
+
+❌ **Below expectations.** Your answer demonstrates limited understanding of the topic. You earned 5.0/10.0 marks.
+
+**Recommendations:** Revisit the study material, focus on understanding fundamental concepts, and practice writing more structured answers.
+
+------------------------------------------------------------
+
+**Page 9 Feedback:**
+
+❌ **Significant gaps.** Your answer shows minimal alignment with the expected response. You earned 3.5/10.0 marks.
+
+**Recommendations:** Review the course material thoroughly, seek help to understand core concepts, and ensure you understand what the question is asking.
+
+------------------------------------------------------------
+
+**Page 10 Feedback:**
+
+⚠️ **Needs improvement.** Your answer shows partial understanding but significant gaps remain. You earned 6.5/10.0 marks.
+
+**Areas for improvement:** Review core concepts, provide more detailed explanations, and ensure your answer directly addresses the question.
+
+------------------------------------------------------------
+
+
+============================================================
+OVERALL FEEDBACK
+============================================================
+
+⚠️ **Marginal Performance.** You're just meeting the minimum requirements. Significant improvement is needed. Focus on understanding core concepts more thoroughly.
+
+**Final Grade:** D+
+**Status:** PASS
+**Overall Score:** 47.33/100.0
+**Average Semantic Match:** 43.5%
+
+**Note:** Your performance varies significantly across pages. Try to maintain consistency in your answers.

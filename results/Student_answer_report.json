@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "evaluation_date": "2026-02-26T10:50:12.410417",
+    "teacher_file": "Teacher's_answerkey.jpg",
+    "student_file": "Student_answer.jpg",
+    "student_info": {}
+  },
+  "evaluation": {
+    "total_score": 65.0,
+    "max_score": 100.0,
+    "percentage": 65.0,
+    "average_similarity": 50.0,
+    "status": "pass",
+    "grade": "B-",
+    "page_scores": [
+      {
+        "page_no": 1,
+        "similarity_score": 50.0,
+        "marks_awarded": 65.0,
+        "max_marks": 100.0,
+        "analysis": "SCORE_EARNED: 9\nSCORE_TOTAL: 18\nANALYSIS:\n*   **Q1 (2/2 Marks):** The student correctly identified ARP as \"Address Resolution Protocol\" and its primary purpose to \"map the IP address to the MAC address,\" which matches the core fact.\n*   **Q2 (2/4 Marks):** The student correctly stated one advantage of IPv6, which is its \"128-bit address\" and \"larger size compared to IPv4.\" However, this represents only one distinct advantage (larger address space), while the question asked for two. No second distinct advantage was provided.\n*   **Q3 (2/4 Marks):** The student correctly defined Unicast Routing as building a route \"from single source to destination\" and mentioned its use of \"IP to forwarding packets.\" However, the student failed to provide an example as requested by the question.\n*   **Q4 (0/4 Marks):** The student did not provide an answer for this question.\n*   **Q5 (3/4 Marks):** The student correctly identified OSPF as \"Open Shortest Path First\" and its primary purpose to \"find the optimal path by low no. of nodes from source to destination.\" This captures the core function of OSPF. While the answer is slightly less detailed than the reference (missing \"link-state\" and \"Dijkstra's algorithm\"), it provides a solid conceptual understanding of its purpose."
+      }
+    ],
+    "total_pages_evaluated": 1
+  },
+  "detailed_page_analysis": [
+    {
+      "page_no": 1,
+      "similarity_score": 50.0,
+      "marks_awarded": 65.0,
+      "max_marks": 100.0,
+      "analysis": "SCORE_EARNED: 9\nSCORE_TOTAL: 18\nANALYSIS:\n*   **Q1 (2/2 Marks):** The student correctly identified ARP as \"Address Resolution Protocol\" and its primary purpose to \"map the IP address to the MAC address,\" which matches the core fact.\n*   **Q2 (2/4 Marks):** The student correctly stated one advantage of IPv6, which is its \"128-bit address\" and \"larger size compared to IPv4.\" However, this represents only one distinct advantage (larger address space), while the question asked for two. No second distinct advantage was provided.\n*   **Q3 (2/4 Marks):** The student correctly defined Unicast Routing as building a route \"from single source to destination\" and mentioned its use of \"IP to forwarding packets.\" However, the student failed to provide an example as requested by the question.\n*   **Q4 (0/4 Marks):** The student did not provide an answer for this question.\n*   **Q5 (3/4 Marks):** The student correctly identified OSPF as \"Open Shortest Path First\" and its primary purpose to \"find the optimal path by low no. of nodes from source to destination.\" This captures the core function of OSPF. While the answer is slightly less detailed than the reference (missing \"link-state\" and \"Dijkstra's algorithm\"), it provides a solid conceptual understanding of its purpose."
+    }
+  ]
+}

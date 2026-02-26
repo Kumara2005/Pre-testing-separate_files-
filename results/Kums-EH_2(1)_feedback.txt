@@ -1,0 +1,33 @@
+
+============================================================
+DETAILED FEEDBACK REPORT
+============================================================
+
+**Page 1 Feedback:**
+
+⚠️ **Needs improvement.** Your answer shows partial understanding but significant gaps remain. You earned 32.5/50.0 marks.
+
+**Areas for improvement:** Review core concepts, provide more detailed explanations, and ensure your answer directly addresses the question.
+
+------------------------------------------------------------
+
+**Page 2 Feedback:**
+
+❌ **Significant gaps.** Your answer shows minimal alignment with the expected response. You earned 12.5/50.0 marks.
+
+**Recommendations:** Review the course material thoroughly, seek help to understand core concepts, and ensure you understand what the question is asking.
+
+------------------------------------------------------------
+
+
+============================================================
+OVERALL FEEDBACK
+============================================================
+
+⚠️ **Marginal Performance.** You're just meeting the minimum requirements. Significant improvement is needed. Focus on understanding core concepts more thoroughly.
+
+**Final Grade:** D+
+**Status:** PASS
+**Overall Score:** 45.0/100.0
+**Average Semantic Match:** 37.5%
+

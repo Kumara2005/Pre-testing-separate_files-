@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "evaluation_date": "2026-02-25T18:43:42.197694",
+    "teacher_file": "Stephen-reaction.pdf",
+    "student_file": "Stephen-reaction.pdf",
+    "student_info": {}
+  },
+  "evaluation": {
+    "total_score": 100.0,
+    "max_score": 100.0,
+    "percentage": 100.0,
+    "average_similarity": 100.0,
+    "status": "pass",
+    "grade": "A+",
+    "page_scores": [
+      {
+        "page_no": 1,
+        "similarity_score": 100.0,
+        "marks_awarded": 100.0,
+        "max_marks": 100.0,
+        "analysis": "The student response demonstrates complete conceptual alignment with the reference key for the Stephen reaction. All critical academic markers, including the correct reactant (nitrile), specific reducing agent system (SnCl2/HCl, 2[H]), the intermediate imine, the hydrolytic conditions (H3O+ is an acceptable and often more explicit representation of acidic hydrolysis than H2O+), and the final aldehyde and ammonia products, are accurately presented. The sequential depiction of the two-step transformation is chemically precise, indicating a thorough understanding of the reaction mechanism."
+      }
+    ],
+    "total_pages_evaluated": 1
+  },
+  "detailed_page_analysis": [
+    {
+      "page_no": 1,
+      "similarity_score": 100.0,
+      "marks_awarded": 100.0,
+      "max_marks": 100.0,
+      "analysis": "The student response demonstrates complete conceptual alignment with the reference key for the Stephen reaction. All critical academic markers, including the correct reactant (nitrile), specific reducing agent system (SnCl2/HCl, 2[H]), the intermediate imine, the hydrolytic conditions (H3O+ is an acceptable and often more explicit representation of acidic hydrolysis than H2O+), and the final aldehyde and ammonia products, are accurately presented. The sequential depiction of the two-step transformation is chemically precise, indicating a thorough understanding of the reaction mechanism."
+    }
+  ]
+}

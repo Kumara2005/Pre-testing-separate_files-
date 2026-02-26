@@ -1,7 +1,7 @@
 """
 Text extraction module with sequential safe-mode processing for free tier.
 Uses Gemini 2.5 Flash with one-at-a-time processing to avoid rate limits.
-Updated to support optional reference paper extraction for few-shot learning.
+Includes logic to extract Student Name from the document header (top-right).
 """
 import asyncio
 import os
@@ -11,11 +11,6 @@ from PIL import Image
 import google.generativeai as genai
 from pdf2image import convert_from_path
 import time
-
-# Use a Semaphore of 1 to ensure only ONE page is sent to Google at a time.
-# This is the only way to stay safe on the Free Tier.
-rate_limit_lock = asyncio.Semaphore(1)
-
 
 class DocumentExtractor:
     """Handles text extraction from PDF or Images using Gemini 2.5 Flash with sequential processing."""
@@ -27,70 +22,93 @@ class DocumentExtractor:
             raise ValueError("GEMINI_API_KEY not found in environment variables")
         
         genai.configure(api_key=api_key)
-        # We use 'gemini-2.5-flash' as specified
         self.model = genai.GenerativeModel('gemini-2.5-flash')
+        
+        # Semaphore ensures only one request is sent to Google at a time.
+        self.rate_limit_lock = asyncio.Semaphore(1)
     
     async def transcribe_page(self, image: Image.Image, page_no: int) -> Dict[str, Any]:
         """
-        Transcribe a single page with rate limiting.
+        Transcribe a single page with rate limiting and specific name-extraction instructions for page 1.
         """
-        async with rate_limit_lock:
+        async with self.rate_limit_lock:
             try:
-                prompt = "Transcribe the text from this exam paper exactly. Return only the text content."
-                # Add a small 1-second delay between every single request to breathe
+                # Page 1 specific instructions to find the handwritten name
+                name_instruction = ""
+                if page_no == 1:
+                    name_instruction = "First, look at the top right corner and identify the Student's Name. "
+                
+                prompt = (
+                    f"{name_instruction}Transcribe the text from this exam paper exactly. "
+                    f"Return the output in this specific format:\n"
+                    f"STUDENT_NAME: [Extracted Name or 'Unknown']\n"
+                    f"CONTENT: [The full transcribed text of the page]"
+                )
+                
+                # Standard delay to avoid 429 errors on free tier
                 await asyncio.sleep(1)
                 
                 response = await self.model.generate_content_async([prompt, image])
-                # Ensure content is never None
-                content = response.text if response.text else ""
-                return {"page_no": page_no, "content": content}
+                raw_text = response.text if response.text else ""
+                
+                # Parse the structured response
+                student_name = "Unknown"
+                clean_content = raw_text
+                
+                if "STUDENT_NAME:" in raw_text and "CONTENT:" in raw_text:
+                    parts = raw_text.split("CONTENT:", 1)
+                    name_part = parts[0].replace("STUDENT_NAME:", "").strip()
+                    student_name = name_part if name_part else "Unknown"
+                    clean_content = parts[1].strip()
+
+                return {
+                    "page_no": page_no, 
+                    "content": clean_content,
+                    "student_name": student_name
+                }
             except Exception as e:
                 print(f"❌ Error on page {page_no}: {str(e)}")
-                return {"page_no": page_no, "content": ""}
+                return {"page_no": page_no, "content": "", "student_name": "Unknown"}
     
     async def extract_from_file(self, file_path: str, source: str) -> Dict[str, Any]:
         """
         Extract text from a PDF or image file sequentially (one page at a time).
-        
-        Args:
-            file_path: Path to the PDF or image file
-            source: Source identifier ("teacher", "student", or "reference")
         """
         try:
             print(f"📑 Extracting {source} from: {Path(file_path).name}")
             
-            # Detect file type by extension
             file_ext = Path(file_path).suffix.lower()
             images = []
             
-            # Handle different file types
             if file_ext in ['.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff']:
-                # It's an image file - load directly
-                print(f"   > Detected image file format: {file_ext}")
                 img = Image.open(file_path)
                 images = [img]
             elif file_ext == '.pdf':
-                # It's a PDF - convert to images
-                print(f"   > Detected PDF file, converting to images...")
+                print(f"   > Converting PDF to high-resolution images...")
                 images = convert_from_path(file_path, dpi=200)
             else:
                 raise ValueError(f"Unsupported format: {file_ext}. Use PDF or Images.")
             
             pages_content = []
+            final_student_name = "Unknown"
             
-            # We process pages one-by-one (Sequential) to prevent 429 errors
             for i, img in enumerate(images):
                 print(f"   > Processing {source} Page {i+1}...")
                 result = await self.transcribe_page(img, i + 1)
                 pages_content.append(result)
+                
+                # Only capture the name from the first page of the student's script
+                if i == 0 and source == "student":
+                    final_student_name = result.get("student_name", "Unknown")
             
-            print(f"✅ Completed extraction for {source}: {len(pages_content)} pages")
+            print(f"✅ Completed extraction for {source}: {len(images)} pages")
             
             return {
                 "source": source,
                 "total_pages": len(pages_content),
                 "pages": pages_content,
-                "file_name": Path(file_path).name
+                "file_name": Path(file_path).name,
+                "student_name_from_sheet": final_student_name
             }
         except Exception as e:
             print(f"❌ Error extracting from {source}: {str(e)}")
@@ -102,14 +120,12 @@ class DocumentExtractor:
                 "error": str(e)
             }
 
-
 async def extract_documents(teacher_path: str, student_path: str, reference_path: Optional[str] = None) -> Dict[str, Any]:
     """
     Extract text from teacher, student, and optional reference documents SEQUENTIALLY.
     """
     extractor = DocumentExtractor()
     
-    # Process sequentially to avoid rate limits
     teacher_data = await extractor.extract_from_file(teacher_path, "teacher")
     student_data = await extractor.extract_from_file(student_path, "student")
     
@@ -123,7 +139,6 @@ async def extract_documents(teacher_path: str, student_path: str, reference_path
         "reference_paper": reference_data,
         "extraction_status": "completed"
     }
-
 
 def extract_documents_sync(teacher_file_path: str, student_file_path: str, reference_file_path: Optional[str] = None) -> Dict[str, Any]:
     """

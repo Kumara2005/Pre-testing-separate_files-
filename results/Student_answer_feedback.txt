@@ -1,0 +1,25 @@
+
+============================================================
+DETAILED FEEDBACK REPORT
+============================================================
+
+**Page 1 Feedback:**
+
+⚠️ **Needs improvement.** Your answer shows partial understanding but significant gaps remain. You earned 65.0/100.0 marks.
+
+**Areas for improvement:** Review core concepts, provide more detailed explanations, and ensure your answer directly addresses the question.
+
+------------------------------------------------------------
+
+
+============================================================
+OVERALL FEEDBACK
+============================================================
+
+👍 **Satisfactory Performance.** You grasp the basics but need to work on depth and accuracy. Review areas where you lost marks and practice writing more comprehensive answers.
+
+**Final Grade:** B-
+**Status:** PASS
+**Overall Score:** 65.0/100.0
+**Average Semantic Match:** 50.0%
+
