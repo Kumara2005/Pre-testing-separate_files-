@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "evaluation_date": "2026-02-27T14:29:28.986098",
+    "teacher_file": "ML-AnswerKey-1.pdf",
+    "student_file": "ML-Student-Answer-1-3_cropped.pdf",
+    "student_info": {
+      "name": "Unknown",
+      "roll_no": "Unknown\nEXTRACTION_CONFIDENCE: 0.98"
+    }
+  },
+  "evaluation": {
+    "total_score": 2.0,
+    "max_score": 8.0,
+    "percentage": 25.0,
+    "average_similarity": 16.67,
+    "status": "fail",
+    "grade": "F",
+    "page_scores": [
+      {
+        "page_no": 1,
+        "similarity_score": 50.0,
+        "marks_awarded": 2.0,
+        "max_marks": 4.0,
+        "analysis": "SCORE_EARNED: 2.0\nSCORE_TOTAL: 4\nANALYSIS:\nQ1: 0/2. The student correctly identifies that inductive bias is used in decision tree learning, but fails to define what inductive bias is (assumptions for generalization) or its specific forms in decision trees (e.g., simpler trees, information gain). The description of a decision tree's structure is irrelevant to the definition of inductive bias.\nQ2: 2/2. The student correctly lists all four forms of learning as per the master key: Supervised learning, Unsupervised learning, Semi Supervised learning, and Reinforcement learning. The additional information about algorithms is not required but does not negate the correct answer."
+      },
+      {
+        "page_no": 2,
+        "similarity_score": 0.0,
+        "marks_awarded": 0.0,
+        "max_marks": 4.0,
+        "analysis": "SCORE_EARNED: 0.0\nSCORE_TOTAL: 4\nANALYSIS:\nQ3: 0/2. The student correctly identifies the topic as \"Convergence speed of gradient descent\" but fails to mention the key factor, \"learning rate.\" Instead, the answer discusses \"back propagation method,\" \"neural network factor,\" and \"Supervised Learning,\" which are irrelevant to the question. No keywords or logical meaning from the master key are present.\nQ4: 0/2. The student correctly states the premise \"If the learning rate is too large in gradient descent\" but then provides an incorrect and irrelevant explanation of what happens. The answer mentions \"neural network,\" \"back propagation,\" and \"delete the error,\" none of which describe the actual consequences like \"overshoot,\" \"divergence,\" or \"instability\" as per the master key. No keywords or logical meaning from the master key are present."
+      },
+      {
+        "page_no": 3,
+        "similarity_score": 0.0,
+        "marks_awarded": 0.0,
+        "max_marks": 0.0,
+        "analysis": "Q5: 0/2. The student's answer fails to provide any correct linear or nonlinear *activation functions* as requested by the question and the master key. The descriptions are vague, and the examples provided (Class, kernel method, KNN) are entirely incorrect in the context of activation functions. No relevant keywords or logical meaning matching the key are present."
+      }
+    ],
+    "total_pages_evaluated": 3
+  }
+}

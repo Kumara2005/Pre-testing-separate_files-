@@ -1,0 +1,43 @@
+{
+  "metadata": {
+    "evaluation_date": "2026-02-27T14:18:52.551786",
+    "teacher_file": "ML-AnswerKey-1.pdf",
+    "student_file": "ML-Student-Answer-1-3_cropped.pdf",
+    "student_info": {
+      "name": "Unknown",
+      "roll_no": "Unknown"
+    }
+  },
+  "evaluation": {
+    "total_score": 0.0,
+    "max_score": 100.0,
+    "percentage": 0.0,
+    "average_similarity": 0.0,
+    "status": "fail",
+    "grade": "F",
+    "page_scores": [
+      {
+        "page_no": 1,
+        "similarity_score": 0.0,
+        "marks_awarded": 0.0,
+        "max_marks": 0.0,
+        "analysis": "Empty content provided for evaluation."
+      },
+      {
+        "page_no": 2,
+        "similarity_score": 0.0,
+        "marks_awarded": 0.0,
+        "max_marks": 0.0,
+        "analysis": "Empty content provided for evaluation."
+      },
+      {
+        "page_no": 3,
+        "similarity_score": 0.0,
+        "marks_awarded": 0.0,
+        "max_marks": 0.0,
+        "analysis": "Empty content provided for evaluation."
+      }
+    ],
+    "total_pages_evaluated": 3
+  }
+}

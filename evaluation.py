@@ -1,115 +1,86 @@
 """
-Evaluation module for grading student scripts based on semantic comparison.
-Generates structured scores and stores results in JSON format.
+Evaluation module for grading student scripts based on logical question mapping.
+Calculates final scores by summing marks awarded for individual questions 
+extracted from AI analysis rather than physical page counts.
 """
 from typing import Dict, List, Any, Optional
 import json
 from datetime import datetime
-
+import re
 
 class Evaluator:
-    """Handles grading and evaluation of student scripts."""
+    """Handles grading and question-wise mark accumulation."""
     
     def __init__(self, total_marks: float = 100.0, pass_threshold: float = 40.0):
         """
         Initialize the evaluator.
-        
-        Args:
-            total_marks: Total marks for the assessment
-            pass_threshold: Minimum percentage to pass
         """
         self.total_marks = total_marks
         self.pass_threshold = pass_threshold
     
-    def calculate_page_score(self, similarity: float, max_marks_per_page: float) -> float:
+    def parse_marks_from_analysis(self, analysis_text: str) -> Dict[str, float]:
         """
-        Calculate score for a single page based on similarity.
+        Extracts SCORE_EARNED and SCORE_TOTAL from the AI's analysis string.
+        """
+        earned = 0.0
+        total = 0.0
         
-        Args:
-            similarity: Similarity score (0-1)
-            max_marks_per_page: Maximum marks allocated for this page
+        # Look for SCORE_EARNED: X patterns in the text
+        earned_match = re.search(r"SCORE_EARNED:\s*([\d.]+)", analysis_text)
+        total_match = re.search(r"SCORE_TOTAL:\s*([\d.]+)", analysis_text)
+        
+        if earned_match:
+            earned = float(earned_match.group(1))
+        if total_match:
+            total = float(total_match.group(1))
             
-        Returns:
-            Calculated score for the page
-        """
-        # Apply a scoring curve (can be customized)
-        if similarity >= 0.9:
-            score_multiplier = 1.0
-        elif similarity >= 0.8:
-            score_multiplier = 0.95
-        elif similarity >= 0.7:
-            score_multiplier = 0.85
-        elif similarity >= 0.6:
-            score_multiplier = 0.75
-        elif similarity >= 0.5:
-            score_multiplier = 0.65
-        elif similarity >= 0.4:
-            score_multiplier = 0.50
-        elif similarity >= 0.3:
-            score_multiplier = 0.35
-        else:
-            score_multiplier = similarity  # Linear below 30%
-        
-        return round(max_marks_per_page * score_multiplier, 2)
-    
+        return {"earned": earned, "total": total}
+
     def evaluate_comparisons(self, comparison_results: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        Evaluate all page comparisons and calculate overall score.
-        
-        Args:
-            comparison_results: List of comparison results from compare module
-            
-        Returns:
-            Comprehensive evaluation results
+        Evaluate comparisons by summing marks for each question identified.
+        Dynamically calculates the total possible marks based on the Answer Key.
         """
         if not comparison_results:
-            return {
-                "total_score": 0.0,
-                "max_score": self.total_marks,
-                "percentage": 0.0,
-                "status": "fail",
-                "grade": "F",
-                "page_scores": [],
-                "average_similarity": 0.0,
-                "total_pages_evaluated": 0
-            }
-        
-        # Calculate marks per page
-        marks_per_page = self.total_marks / len(comparison_results)
-        
+            return self._empty_report()
+
         page_scores = []
+        cumulative_earned = 0.0
+        cumulative_possible = 0.0
         total_similarity = 0.0
-        total_score = 0.0
-        
+
         for i, comparison in enumerate(comparison_results):
+            analysis = comparison.get("analysis", "")
             similarity = comparison.get("similarity", 0.0)
-            page_score = self.calculate_page_score(similarity, marks_per_page)
-            
+            marks = self.parse_marks_from_analysis(analysis)
             page_info = {
                 "page_no": comparison.get("student_page_no", i + 1),
                 "similarity_score": round(similarity * 100, 2),
-                "marks_awarded": page_score,
-                "max_marks": round(marks_per_page, 2),
-                "analysis": comparison.get("analysis", "")
+                "marks_awarded": marks["earned"],
+                "max_marks": marks["total"],
+                "analysis": analysis
             }
-            
             page_scores.append(page_info)
+            cumulative_earned += marks["earned"]
+            cumulative_possible += marks["total"]
             total_similarity += similarity
-            total_score += page_score
-        
-        # Calculate overall metrics
-        average_similarity = total_similarity / len(comparison_results)
-        percentage = (total_score / self.total_marks) * 100
+
+        # DYNAMIC TOTAL: Use the sum of questions found in the key as the base
+        # This ensures that a 10-question 2-mark paper is graded out of 20, not 100.
+        dynamic_max = cumulative_possible if cumulative_possible > 0 else self.total_marks
+
+        # Calculate percentage based on the dynamically found total
+        percentage = (cumulative_earned / dynamic_max) * 100 if dynamic_max > 0 else 0
+        avg_similarity = (total_similarity / len(comparison_results)) * 100 if comparison_results else 0
+
         status = "pass" if percentage >= self.pass_threshold else "fail"
-        
-        # Determine grade
         grade = self.calculate_grade(percentage)
-        
+
         return {
-            "total_score": round(total_score, 2),
-            "max_score": self.total_marks,
+            "total_score": round(cumulative_earned, 2),
+            "max_score": round(dynamic_max, 2),
             "percentage": round(percentage, 2),
-            "average_similarity": round(average_similarity * 100, 2),
+            "average_similarity": round(avg_similarity, 2),
             "status": status,
             "grade": grade,
             "page_scores": page_scores,
@@ -117,39 +88,26 @@ class Evaluator:
         }
     
     def calculate_grade(self, percentage: float) -> str:
-        """
-        Calculate letter grade based on percentage.
-        
-        Args:
-            percentage: Score percentage
-            
-        Returns:
-            Letter grade
-        """
-        if percentage >= 90:
-            return "A+"
-        elif percentage >= 85:
-            return "A"
-        elif percentage >= 80:
-            return "A-"
-        elif percentage >= 75:
-            return "B+"
-        elif percentage >= 70:
-            return "B"
-        elif percentage >= 65:
-            return "B-"
-        elif percentage >= 60:
-            return "C+"
-        elif percentage >= 55:
-            return "C"
-        elif percentage >= 50:
-            return "C-"
-        elif percentage >= 45:
-            return "D+"
-        elif percentage >= 40:
-            return "D"
-        else:
-            return "F"
+        """Calculate letter grade based on percentage."""
+        if percentage >= 90: return "A+"
+        elif percentage >= 80: return "A"
+        elif percentage >= 70: return "B"
+        elif percentage >= 60: return "C"
+        elif percentage >= 50: return "D"
+        elif percentage >= 40: return "E"
+        else: return "F"
+
+    def _empty_report(self) -> Dict[str, Any]:
+        return {
+            "total_score": 0.0,
+            "max_score": self.total_marks,
+            "percentage": 0.0,
+            "status": "fail",
+            "grade": "F",
+            "page_scores": [],
+            "average_similarity": 0.0,
+            "total_pages_evaluated": 0
+        }
     
     def generate_evaluation_report(
         self,
@@ -158,18 +116,7 @@ class Evaluator:
         teacher_file: str = "",
         student_file: str = ""
     ) -> Dict[str, Any]:
-        """
-        Generate a comprehensive evaluation report.
-        
-        Args:
-            comparison_results: List of comparison results
-            student_info: Optional dictionary with student information
-            teacher_file: Name of teacher's answer key file
-            student_file: Name of student's script file
-            
-        Returns:
-            Complete evaluation report
-        """
+        """Generate a comprehensive evaluation report including metadata."""
         evaluation = self.evaluate_comparisons(comparison_results)
         
         report = {
@@ -179,61 +126,49 @@ class Evaluator:
                 "student_file": student_file,
                 "student_info": student_info or {}
             },
-            "evaluation": evaluation,
-            "detailed_page_analysis": evaluation["page_scores"]
+            "evaluation": evaluation
         }
         
         return report
-    
-    def save_report(self, report: Dict[str, Any], output_path: str) -> None:
-        """
-        Save evaluation report to a JSON file.
-        
-        Args:
-            report: Evaluation report dictionary
-            output_path: Path to save the report
-        """
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(report, f, indent=2, ensure_ascii=False)
-    
-    def load_report(self, report_path: str) -> Dict[str, Any]:
-        """
-        Load evaluation report from a JSON file.
-        
-        Args:
-            report_path: Path to the report file
-            
-        Returns:
-            Evaluation report dictionary
-        """
-        with open(report_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    
+
+    # Inside evaluation.py
+
+   # Inside evaluation.py
+
     def get_summary(self, evaluation: Dict[str, Any]) -> str:
         """
-        Generate a human-readable summary of the evaluation.
-        
-        Args:
-            evaluation: Evaluation results dictionary
-            
-        Returns:
-            Formatted summary string
+        Generates a student-friendly, clean summary without tabular clutter.
+        Focuses on question-wise results and specific improvement areas.
         """
-        summary = f"""
-EVALUATION SUMMARY
-==================
-Total Score: {evaluation['total_score']}/{evaluation['max_score']}
-Percentage: {evaluation['percentage']}%
-Grade: {evaluation['grade']}
-Status: {evaluation['status'].upper()}
-Average Similarity: {evaluation['average_similarity']}%
-Pages Evaluated: {evaluation['total_pages_evaluated']}
+        # --- TOP LEVEL SUMMARY ---
+        summary = f"## 🎓 Final Result: {evaluation['total_score']} / {evaluation['max_score']}\n"
+        summary += f"**Grade**: {evaluation['grade']} | **Status**: {evaluation['status'].upper()}\n\n"
+        summary += "---\n"
 
-Performance Breakdown:
-"""
-        
+        # --- QUESTION-WISE BREAKDOWN ---
+        summary += "### 📝 Question-Wise Breakdown\n"
         for page in evaluation['page_scores']:
-            summary += f"\nPage {page['page_no']}: {page['marks_awarded']}/{page['max_marks']} marks "
-            summary += f"(Similarity: {page['similarity_score']}%)"
+            # Extract question label (e.g., Q1, Q2)
+            q_nums = re.findall(r"(Q\d+|Question \d+)", page['analysis'])
+            q_label = ", ".join(q_nums) if q_nums else f"Item {page['page_no']}"
+            
+            # Simple clean result line
+            summary += f"✅ **{q_label}**: Awarded {page['marks_awarded']} / {page['max_marks']} marks\n"
+
+        summary += "\n---\n"
+
+        # --- OVERALL IMPROVEMENT SUMMARY ---
+        summary += "### 🚀 How to Improve Your Score\n"
+        
+        # Logic to identify major failing areas
+        fail_count = sum(1 for p in evaluation['page_scores'] if p['marks_awarded'] == 0)
+        
+        if fail_count > 0:
+            summary += f"You missed out on marks in {fail_count} key areas. Focus on these improvements:\n"
+            summary += "* **Conceptual Accuracy**: For technical subjects, ensure you name the specific 'Factor' or 'Formula' requested by the key (e.g., Learning Rate or Accuracy Formula).\n"
+            summary += "* **Avoid Irrelevance**: Do not include information about unrelated topics like Backpropagation or KNN unless specifically asked.\n"
+            summary += "* **Diagram Precision**: If a single neuron is asked, do not draw a full multi-layer network.\n"
+        else:
+            summary += "Great job! To reach an A+, focus on precise technical vocabulary and cleaner sentence structures.\n"
         
         return summary

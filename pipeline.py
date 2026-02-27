@@ -1,19 +1,21 @@
 """
 Pipeline orchestrator that connects all modules into a seamless workflow.
 Coordinates extraction, comparison, evaluation, and feedback generation.
-Updated to support student name extraction and subject-aware evaluation.
+Updated with Leniency Logic (0.55 threshold) and Global Context Mapping.
 """
 import asyncio
+import time
+import re
 from typing import Dict, Any, Optional, List
 from pathlib import Path
-import time
 
-# Internal module imports (Ensure these files exist in your directory)
+
+# Module imports
 from extraction import DocumentExtractor, extract_documents
 from compare import SemanticComparator
 from evaluation import Evaluator
 from feedback import FeedbackGenerator
-from utils import save_json, ensure_directory_exists, verify_gemini_api_key, check_api_prerequisites
+from utils import save_json, ensure_directory_exists, check_api_prerequisites
 
 
 class CorrectionPipeline:
@@ -26,13 +28,12 @@ class CorrectionPipeline:
         total_marks: float = 100.0,
         output_dir: str = "results"
     ):
-        """Initialize the correction pipeline."""
+        """Initialize core components of the correction pipeline."""
         self.comparison_method = comparison_method
         self.use_ai_feedback = use_ai_feedback
         self.total_marks = total_marks
         self.output_dir = output_dir
         
-        # Initialize core components
         self.extractor = DocumentExtractor()
         self.comparator = SemanticComparator(method=comparison_method)
         self.evaluator = Evaluator(total_marks=total_marks)
@@ -40,157 +41,133 @@ class CorrectionPipeline:
         
         ensure_directory_exists(output_dir)
     
-    async def extract_phase(
-        self,
-        teacher_file_path: str,
-        student_file_path: str,
-        reference_file_path: Optional[str] = None
-    ) -> Dict[str, Any]:
-        """Phase 1: Extract text and parse metadata like Student Name."""
-        print("📄 Phase 1: Sequential Extraction (Free Tier Safe Mode)...")
-        start_time = time.time()
+    async def extract_phase(self, teacher_file_path: str, student_file_path: str, reference_file_path: Optional[str] = None) -> Dict[str, Any]:
+        """Phase 1: Extract text and parse metadata (Name and Roll No)."""
+        extracted_data = await extract_documents(teacher_file_path, student_file_path, reference_file_path)
         
-        extracted_data = await extract_documents(
-            teacher_file_path, 
-            student_file_path, 
-            reference_file_path
-        )
-        
-        # Post-extraction logic to parse student name from the raw AI response
-        student_data = extracted_data['student_script']
-        for page in student_data['pages']:
-            raw = page.get('raw_response', '')
-            if "STUDENT_NAME:" in raw and "CONTENT:" in raw:
-                # Extract name from the page 1 header logic
-                name_part = raw.split("STUDENT_NAME:")[1].split("CONTENT:")[0].strip()
-                page['content'] = raw.split("CONTENT:")[1].strip()
-                
-                # Assign extracted name to metadata if found
-                if name_part and name_part.lower() != "unknown":
-                    extracted_data['student_name_from_sheet'] = name_part
+        if 'student_script' not in extracted_data:
+            raise KeyError("Critical Error: 'student_script' missing from extraction results.")
 
-        # Check for empty results
-        t_text = sum(len(p.get('content', '')) for p in extracted_data['teacher_key']['pages'])
-        s_text = sum(len(p.get('content', '')) for p in extracted_data['student_script']['pages'])
-        
-        if t_text == 0 or s_text == 0:
-            print("⚠️ WARNING: Extraction returned empty text. Check API Key.")
-        
-        print(f"✅ Extraction completed in {time.time() - start_time:.2f} seconds")
+        student_script = extracted_data['student_script']
+        extracted_data['student_name'] = "Unknown"
+        extracted_data['roll_no'] = "Unknown"
+
+        # Parsing student metadata from headers to identify the student
+        for page in student_script['pages']:
+            raw = page.get('raw_text', '')
+            if "METADATA_NAME:" in raw and "CONTENT:" in raw:
+                try:
+                    name = raw.split("METADATA_NAME:")[1].split("METADATA_ROLL:")[0].strip()
+                    roll = raw.split("METADATA_ROLL:")[1].split("CONTENT:")[0].strip()
+                    # Clean the page content by removing header tags
+                    page['content'] = raw.split("CONTENT:")[1].strip()
+                    
+                    extracted_data['student_name'] = name if name.lower() != "unknown" else "Unknown"
+                    extracted_data['roll_no'] = roll if roll.lower() != "unknown" else "Unknown"
+                except (IndexError, ValueError):
+                    pass
         return extracted_data
-    
-    async def comparison_phase(self, extracted_data: Dict[str, Any], subject: str = "General") -> List[Dict[str, Any]]:
-        """Phase 2: Perform subject-aware semantic comparison."""
-        print(f"\n🔍 Phase 2: Comparing answers for {subject}...")
+
+    async def run_async(self, t_path: str, s_path: str, r_path: Optional[str] = None, save_results: bool = True, subject: str = "General") -> Dict[str, Any]:
+        """Main execution flow with Global Master Key Mapping and Leniency Logic."""
+        pipeline_start = time.time()
         
+        # Phase 1: Extraction
+        extracted_data = await self.extract_phase(t_path, s_path, r_path)
+        
+        # --- DUAL-MODE LOGIC & THRESHOLD CALIBRATION ---
+       # Inside pipeline.py -> run_async method
+
+    # --- DUAL-MODE LOGIC ---
+        if subject == "Language":
+            eval_mode = "language"
+            threshold = 0.85 # Strict for Grammar/Creativity
+        else:
+            eval_mode = "technical"
+            threshold = 0.50 # Lenient for Logic/Keywords
+
+    # ... remaining pipeline logic ...
+
+        # --- GLOBAL CONTEXT MAPPING (The Fix) ---
+        # Consolidate all teacher pages into one Master Key. 
+        # Resolves cases where Teacher has 8 Qs on Page 1 but Student has 2 Qs per page.
+        full_teacher_key = "\n\n".join([p.get("content", "") for p in extracted_data['teacher_key']['pages']])
+        
+        print(f"🔍 Phase 2: Comparing answers using '{eval_mode}' mode with Global Key Mapping.")
+
+        # Phase 2: Comparison (Passing the Master Key and leniency threshold)
         comparison_results = await self.comparator.compare_documents(
-            extracted_data['teacher_key'], 
-            extracted_data['student_script'], 
-            subject,
-            extracted_data.get('reference_paper')
+            teacher_data=extracted_data['teacher_key'], 
+            student_data=extracted_data['student_script'], 
+            subject=subject,
+            mode=eval_mode,
+            threshold=threshold,
+            master_key_content=full_teacher_key 
         )
-        return comparison_results
-    
-    def evaluation_phase(self, comparison_results: List[Dict[str, Any]], extracted_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Phase 3: Finalize scoring and generate reports."""
-        print("\n📊 Phase 3: Evaluating and generating scores...")
         
-        return self.evaluator.generate_evaluation_report(
+        # Phase 3: Evaluation (Dynamic question-wise summation)
+        evaluation_report = self.evaluator.generate_evaluation_report(
             comparison_results=comparison_results,
-            teacher_file=extracted_data['teacher_key'].get('file_name', 'teacher.pdf'),
-            student_file=extracted_data['student_script'].get('file_name', 'student.pdf')
+            teacher_file=extracted_data['teacher_key'].get('file_name'),
+            student_file=extracted_data['student_script'].get('file_name'),
+            student_info={
+                "name": extracted_data.get('student_name'),
+                "roll_no": extracted_data.get('roll_no')
+            }
         )
-    
-    def feedback_phase(self, evaluation_report: Dict[str, Any], extracted_data: Dict[str, Any]) -> str:
-        """Phase 4: Generate detailed feedback."""
-        print("\n💬 Phase 4: Generating detailed feedback...")
         
-        return self.feedback_generator.generate_complete_feedback(
+        # Phase 4: Feedback
+        feedback = self.feedback_generator.generate_complete_feedback(
             evaluation=evaluation_report['evaluation'],
             teacher_data=extracted_data['teacher_key'],
             student_data=extracted_data['student_script']
         )
-    
-    async def run_async(
-        self,
-        teacher_file_path: str,
-        student_file_path: str,
-        reference_file_path: Optional[str] = None,
-        save_results: bool = True,
-        subject: str = "General"
-    ) -> Dict[str, Any]:
-        """Main asynchronous execution flow."""
-        print(f"🚀 Initializing Pipeline | Subject: {subject}")
-        print("="*60)
-        
-        all_ok, _ = check_api_prerequisites()
-        if not all_ok:
-            raise ValueError("API prerequisites check failed.")
-        
-        pipeline_start = time.time()
-        
-        # Step 1: Extraction
-        extracted_data = await self.extract_phase(teacher_file_path, student_file_path, reference_file_path)
-        
-        # Step 2: Comparison (Using Subject for Temperature control)
-        comparison_results = await self.comparison_phase(extracted_data, subject)
-        
-        # Step 3: Evaluation
-        evaluation_report = self.evaluation_phase(comparison_results, extracted_data)
-        
-        # Step 4: Feedback
-        feedback = self.feedback_phase(evaluation_report, extracted_data)
         
         final_results = {
             "extracted_data": extracted_data,
-            "comparison_results": comparison_results,
             "evaluation_report": evaluation_report,
             "feedback": feedback,
             "pipeline_metadata": {
                 "subject": subject,
-                "total_marks": self.total_marks,
-                "few_shot": reference_file_path is not None
+                "eval_mode": eval_mode,
+                "elapsed_time": time.time() - pipeline_start
             }
         }
         
         if save_results:
-            self._save_results(final_results, student_file_path)
+            self._save_results(final_results, s_path)
         
-        print(f"\n✅ Pipeline completed in {time.time() - pipeline_start:.2f} seconds")
         return final_results
-    
-    def run_sync(self, t_path, s_path, r_path=None, save_results=True, subject="General"):
+
+    def run_sync(self, t_path: str, s_path: str, r_path: Optional[str] = None, save_results: bool = True, subject: str = "General"):
         """Synchronous wrapper for run_async."""
         return asyncio.run(self.run_async(t_path, s_path, r_path, save_results, subject))
-    
-    def _save_results(self, results: Dict[str, Any], student_file_path: str) -> None:
-        """Saves JSON and Text results to the results directory."""
-        # Use extracted name if available, else filename
-        name_found = results['extracted_data'].get('student_name_from_sheet')
-        student_name = name_found if name_found else Path(student_file_path).stem
+
+   # Inside pipeline.py
+
+    def _save_results(self, results: Dict[str, Any], s_path: str):
+        """Saves report using a sanitized student name and roll number."""
+        # Extract raw metadata
+        raw_name = results['extracted_data'].get('student_name', 'Unknown')
+        raw_roll = results['extracted_data'].get('roll_no', 'Unknown')
         
-        save_json(results['evaluation_report'], str(Path(self.output_dir) / f"{student_name}_report.json"))
-        with open(Path(self.output_dir) / f"{student_name}_feedback.txt", 'w', encoding='utf-8') as f:
-            f.write(results['feedback'])
+        # FIX: Sanitize the filename to remove newlines, colons, and extra spaces
+        def sanitize(text):
+            # Remove newlines, colons, and any other illegal characters
+            text = text.replace('\n', '').replace('\r', '').replace(':', '_')
+            # Only allow alphanumeric, underscores, and hyphens
+            return re.sub(r'[^\w\-_\. ]', '', text).strip()
+
+        name = sanitize(raw_name)
+        roll = sanitize(raw_roll)
+        
+        # Construct a clean filename
+        filename = f"{name}_{roll}_report.json".replace(" ", "_")
+        
+        save_json(results['evaluation_report'], str(Path(self.output_dir) / filename))
 
 
-def run_correction_pipeline(
-    teacher_file_path: str,
-    student_file_path: str,
-    reference_file_path: Optional[str] = None,
-    comparison_method: str = "gemini",
-    use_ai_feedback: bool = False,
-    total_marks: float = 100.0,
-    output_dir: str = "results",
-    save_results: bool = True,
-    subject: str = "General"
-) -> Dict[str, Any]:
-    """External entry point for the pipeline."""
-    pipeline = CorrectionPipeline(
-        comparison_method=comparison_method,
-        use_ai_feedback=use_ai_feedback,
-        total_marks=total_marks,
-        output_dir=output_dir
-    )
-    
-    return pipeline.run_sync(teacher_file_path, student_file_path, reference_file_path, save_results, subject)
+def run_correction_pipeline(teacher_file_path: str, student_file_path: str, reference_file_path: Optional[str] = None, total_marks: float = 100.0, subject: str = "General"):
+    """Global entry point."""
+    pipeline = CorrectionPipeline(total_marks=total_marks)
+    return pipeline.run_sync(teacher_file_path, student_file_path, reference_file_path, subject=subject)

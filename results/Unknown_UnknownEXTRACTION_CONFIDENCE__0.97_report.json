@@ -1,0 +1,29 @@
+{
+  "metadata": {
+    "evaluation_date": "2026-02-27T14:32:27.185589",
+    "teacher_file": "teacher script.pdf",
+    "student_file": "student_answers.pdf",
+    "student_info": {
+      "name": "Unknown",
+      "roll_no": "Unknown\nEXTRACTION_CONFIDENCE: 0.97"
+    }
+  },
+  "evaluation": {
+    "total_score": 11.0,
+    "max_score": 11.0,
+    "percentage": 100.0,
+    "average_similarity": 100.0,
+    "status": "pass",
+    "grade": "A+",
+    "page_scores": [
+      {
+        "page_no": 1,
+        "similarity_score": 100.0,
+        "marks_awarded": 11.0,
+        "max_marks": 11.0,
+        "analysis": "SCORE_EARNED: 11.0\nSCORE_TOTAL: 11.0\nANALYSIS:\nQ1: 2/2. The student accurately identifies the challenge as parents' inability to say 'no' and the consequence of raising greedy children whose desires are never satisfied even after getting what they want. Keywords: 'aren't able to say 'no'', 'greedy child', 'needs doesn't even get satisfied after getting what he/she wants'.\nQ2: 3/3. The student correctly lists all three negative consequences for overindulged children as suggested by psychologists: vulnerability to future anxiety and depression, tendency to ask for more than they need, and failure to understand self-sacrifice. Keywords: 'vulnerable to future anxiety and depression', 'begin to ask for more than which is enough for them because there is always more to want', 'won't understand the meaning of 'self-sacrifice''.\nQ4: 3/3. The student correctly identifies the crucial life lessons learned by waiting for things: patience, savings, and working hard to achieve goals. Keywords: 'patience', 'savings', 'working hard... to achieve or attain their targets and goals'.\nQ5: 3/3. The student accurately describes advertisements as a major source of influence, their targeting of a child's mindset by showcasing lavish products, and how this fuels greed and a constant craving. Keywords: 'advertisement is a major source that influences a child', 'lavish products', 'especially aimed or created to target child's mindset', 'greed of kids come out... to want more and more'."
+      }
+    ],
+    "total_pages_evaluated": 1
+  }
+}

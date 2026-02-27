@@ -1,0 +1,49 @@
+{
+  "metadata": {
+    "evaluation_date": "2026-02-26T17:51:04.458885",
+    "teacher_file": "ML-AnswerKey.pdf",
+    "student_file": "ML-Student-Answer.pdf",
+    "student_info": {}
+  },
+  "evaluation": {
+    "total_score": 32.5,
+    "max_score": 100.0,
+    "percentage": 32.5,
+    "average_similarity": 25.0,
+    "status": "fail",
+    "grade": "F",
+    "page_scores": [
+      {
+        "page_no": 1,
+        "similarity_score": 50.0,
+        "marks_awarded": 32.5,
+        "max_marks": 50.0,
+        "analysis": "SCORE_EARNED: 2\nSCORE_TOTAL: 4\nANALYSIS:\n**Q1. Define inductive bias in decision tree learning.**\n*   **Teacher's Key:** Defines inductive bias as assumptions made to generalize beyond training data, specifically mentioning simpler trees (Occam's Razor) and information gain in decision tree learning. (2 marks)\n*   **Student's Answer:** The student states that inductive bias is \"used in decision tree learning\" but fails to define what inductive bias *is*. The subsequent description focuses on the structural components of a decision tree (edges, parent/child nodes) rather than the underlying assumptions or principles of inductive bias within that context. There is no conceptual alignment with the definition provided in the key.\n*   **Marks Awarded:** 0/2\n\n**Q2. Mention different forms of learning.**\n*   **Teacher's Key:** Lists Supervised learning, Unsupervised learning, Semi-supervised learning, and Reinforcement learning. (2 marks)\n*   **Student's Answer:** The student correctly lists all four forms of learning: Supervised learning, Unsupervised learning, Semi Supervised learning, and Reinforcement learning. The additional sentence about algorithms (Neural Network, Decision tree) is irrelevant but does not detract from the correctness of the primary answer.\n*   **Marks Awarded:** 2/2"
+      },
+      {
+        "page_no": 2,
+        "similarity_score": 0.0,
+        "marks_awarded": 0.0,
+        "max_marks": 50.0,
+        "analysis": "SCORE_EARNED: 0\nSCORE_TOTAL: 18 (Based on Q6: 2, Q7: 2, Q8: 2, Q9: 2, Q10: 2, Q11(a): 8 marks for 4 metrics at 2 marks each)\n\nANALYSIS:\nThe student's answer provides responses for \"Q 3\" and \"Q 4\". The provided Teacher's Key, however, contains answers for questions 6, 7, 8, 9, 10, and 11(a).\nSince there is no overlap in the question numbers between the student's submission and the provided key, it is not possible to evaluate the student's answers against the given key. Therefore, no marks can be awarded from the provided key's questions."
+      }
+    ],
+    "total_pages_evaluated": 2
+  },
+  "detailed_page_analysis": [
+    {
+      "page_no": 1,
+      "similarity_score": 50.0,
+      "marks_awarded": 32.5,
+      "max_marks": 50.0,
+      "analysis": "SCORE_EARNED: 2\nSCORE_TOTAL: 4\nANALYSIS:\n**Q1. Define inductive bias in decision tree learning.**\n*   **Teacher's Key:** Defines inductive bias as assumptions made to generalize beyond training data, specifically mentioning simpler trees (Occam's Razor) and information gain in decision tree learning. (2 marks)\n*   **Student's Answer:** The student states that inductive bias is \"used in decision tree learning\" but fails to define what inductive bias *is*. The subsequent description focuses on the structural components of a decision tree (edges, parent/child nodes) rather than the underlying assumptions or principles of inductive bias within that context. There is no conceptual alignment with the definition provided in the key.\n*   **Marks Awarded:** 0/2\n\n**Q2. Mention different forms of learning.**\n*   **Teacher's Key:** Lists Supervised learning, Unsupervised learning, Semi-supervised learning, and Reinforcement learning. (2 marks)\n*   **Student's Answer:** The student correctly lists all four forms of learning: Supervised learning, Unsupervised learning, Semi Supervised learning, and Reinforcement learning. The additional sentence about algorithms (Neural Network, Decision tree) is irrelevant but does not detract from the correctness of the primary answer.\n*   **Marks Awarded:** 2/2"
+    },
+    {
+      "page_no": 2,
+      "similarity_score": 0.0,
+      "marks_awarded": 0.0,
+      "max_marks": 50.0,
+      "analysis": "SCORE_EARNED: 0\nSCORE_TOTAL: 18 (Based on Q6: 2, Q7: 2, Q8: 2, Q9: 2, Q10: 2, Q11(a): 8 marks for 4 metrics at 2 marks each)\n\nANALYSIS:\nThe student's answer provides responses for \"Q 3\" and \"Q 4\". The provided Teacher's Key, however, contains answers for questions 6, 7, 8, 9, 10, and 11(a).\nSince there is no overlap in the question numbers between the student's submission and the provided key, it is not possible to evaluate the student's answers against the given key. Therefore, no marks can be awarded from the provided key's questions."
+    }
+  ]
+}
